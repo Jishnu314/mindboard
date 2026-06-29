@@ -11,17 +11,6 @@ Mind Board is designed to run locally in the browser.
 - Exported HTML/JSON files contain the board data the user chooses to export.
 - `localStorage` is not encrypted; anyone with access to the same browser profile may be able to inspect saved boards.
 
-## GitHub star button
-
-GitHub stars cannot and should not be added automatically. The Star button only stores a local like count in the user's browser and, after `GITHUB_REPO_URL` is updated in `index.html`, opens the GitHub repository in a new tab so the user can star it manually.
-
-Before publishing, replace:
-
-```js
-const GITHUB_REPO_URL = 'https://github.com/your-username/mind-board';
-```
-
-with your real repository URL.
 
 ## Reporting issues
 
