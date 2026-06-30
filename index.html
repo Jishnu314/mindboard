@@ -793,6 +793,7 @@ let spaceDown = false;
 let pendingImageBoxId = null;
 let textEditorBoxId = null;
 let zTop = 10;
+let NOTE_Z_MAX = 500;
 let selectMode = false;
 
 // Undo/Redo
@@ -1333,7 +1334,7 @@ function newNote(atX, atY) {
 function renderNote(data) {
   const el = document.createElement('div');
   el.className = 'note'; el.dataset.id = data.id;
-  el.style.cssText = `left:${data.x}px;top:${data.y}px;z-index:${++zTop}`;
+  el.style.cssText = `left:${data.x}px;top:${data.y}px;z-index:${Math.min(++zTop, NOTE_Z_MAX)}`;
 
   el.innerHTML = `<div class="note-accent"></div><span class="note-grip" aria-hidden="true">✦</span><textarea class="n-title" rows="1" placeholder="Write here…" spellcheck="true">${escHtml(data.title)}</textarea><textarea class="n-desc" rows="1" placeholder="Add a detail…" spellcheck="true">${escHtml(data.desc)}</textarea>`;
   const ta = el.querySelector('.n-title'), da = el.querySelector('.n-desc');
@@ -1367,7 +1368,8 @@ function renderNote(data) {
   el.addEventListener('mousedown', e => {
     if (e.target === ta || e.target === da) return;
     if (e.shiftKey || selectMode) { toggleMulti(data.id, el); e.stopPropagation(); return; }
-    pickEl(el, 'note', data); el.style.zIndex = ++zTop;
+    pickEl(el, 'note', data); el.style.zIndex = Math.min(++zTop, NOTE_Z_MAX);
+
   });
 
   el.addEventListener('contextmenu', e => {
@@ -1446,7 +1448,7 @@ function renderBox(box) {
   const el = document.createElement('div');
   el.className = 'box' + (box.collapsed ? ' collapsed' : '');
   el.dataset.id = box.id;
-  el.style.cssText = `left:${box.x}px;top:${box.y}px;width:${box.w}px;height:${box.h}px;z-index:${++zTop};--card-color:${box.color}`;
+  el.style.cssText = `left:${box.x}px;top:${box.y}px;width:${box.w}px;height:${box.h}px;z-index:${NOTE_Z_MAX + (++zTop)};--card-color:${box.color}`;
 
   const imgs = (box.images || []).slice(0, 4).map(src => `<img class="box-img-thumb" src="${src}" alt="">`).join('');
   const childCount = box.board.boxes.length + box.board.notes.length;
@@ -1549,7 +1551,7 @@ function renderBox(box) {
   el.addEventListener('mousedown', e => {
     if (e.target.closest('input,[contenteditable],button,.port,.box-img-thumb')) return;
     if (e.shiftKey || selectMode) { toggleMulti(box.id, el); e.stopPropagation(); return; }
-    pickEl(el, 'box', box); el.style.zIndex = ++zTop;
+    pickEl(el, 'box', box); el.style.zIndex = NOTE_Z_MAX + (++zTop);
   });
 
   // Right-click menu
@@ -1650,7 +1652,9 @@ function pickEl(el, kind, ref) {
   clearSel();
   el.classList.add('selected');
   selected = { kind, ref, el };
-  el.style.zIndex = ++zTop;
+  el.style.zIndex = kind === 'note'
+    ? Math.min(++zTop, NOTE_Z_MAX)
+    : NOTE_Z_MAX + (++zTop);
 }
 
 function toggleMulti(id, el) {
