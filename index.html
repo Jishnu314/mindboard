@@ -1249,6 +1249,14 @@ function renderPageHeader() {
     const target = Math.max(280, Math.min(needed, window.innerWidth * 0.9));
     ph.style.width = target + 'px';
   }
+  function autoSizeNote(note, el) {
+    const ta = el.querySelector('.n-title'), da = el.querySelector('.n-desc');
+    const titleW = measureTextWidth(ta.value || ta.placeholder, '700 16px -apple-system, sans-serif');
+    const descW  = measureTextWidth(da.value || da.placeholder, '400 12px -apple-system, sans-serif');
+    const widest = Math.max(titleW, descW);
+    const target = Math.max(160, Math.min(widest + 28, 320)); // padding + cap at 320 (matches CSS max-width)
+    el.style.width = target + 'px';
+  }
 
   // ── Images ──
   let imgWrap = document.getElementById('phImages');
@@ -1333,6 +1341,7 @@ function renderNote(data) {
     t.addEventListener('input', () => {
       if (t === ta) data.title = t.value; else data.desc = t.value;
       autoH(t); scheduleSave();
+      autoSizeNote(data, el);
     });
     t.addEventListener('focus', () => pickEl(el, 'note', data));
     t.addEventListener('keydown', e => {
@@ -1379,7 +1388,7 @@ function renderNote(data) {
     ]);
   });
 
-  requestAnimationFrame(() => { autoH(ta); autoH(da); });
+  requestAnimationFrame(() => { autoH(ta); autoH(da); autoSizeNote(data, el); });
   return el;
 }
 
