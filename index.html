@@ -212,7 +212,6 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [contentedita
   transition: border-color 0.2s ease, box-shadow 0.25s ease, transform 0.18s ease, opacity .18s;
 }
 .box:hover {
-  z-index: 9999 !important;
   border-color: color-mix(in srgb, var(--card-color, var(--accent)) 70%, transparent);
   transform: translateY(-2px);
   box-shadow:
@@ -273,9 +272,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [contentedita
   border-radius: 0; padding: 2px 6px 4px 14px;
   cursor: grab; box-shadow: none;
   transition: opacity .18s;
-  min-width: 160px; width: max-content;
-  z-index: 0;
-
+  min-width: 160px; width: max-content; max-width: 340px;
 }
 .note-accent {
   position: absolute; left: 0; top: 4px; bottom: 6px;
@@ -284,7 +281,6 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [contentedita
 }
 .note-grip { position: absolute; left: -16px; top: 3px; font-size: 9px; color: rgba(243,213,141,0.3); cursor: grab; }
 .note-grip:active { cursor: grabbing; }
-.note:hover { z-index: 9999 !important; }
 .note:hover .note-accent { background: linear-gradient(to bottom, rgba(243,213,141,0.75), rgba(243,213,141,0.07)); }
 .note.selected .note-accent { background: linear-gradient(to bottom, rgba(138,244,123,0.75), rgba(138,244,123,0.06)); }
 .note.selected .n-title { color: #c5eabc; text-shadow: 0 0 18px rgba(138,244,123,0.2), 0 1px 2px rgba(0,0,0,0.6); }
@@ -292,7 +288,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [contentedita
 .note.multi-selected .note-accent { background: linear-gradient(to bottom, rgba(124,215,196,0.7), transparent); }
 .note.dimmed { opacity: 0.08; pointer-events: none; }
 .note.match .n-title { color: #9dfcb4; }
-.n-title, .n-desc { display: block; width: 100%; background: transparent; border: none; outline: none; resize: none; overflow: hidden; white-space: pre-wrap; font-family: inherit; caret-color: var(--accent); cursor: text; }
+.n-title, .n-desc { display: block; width: 100%; max-width: 100%; background: transparent; border: none; outline: none; resize: none; overflow: hidden; white-space: pre-wrap; font-family: inherit; caret-color: var(--accent); cursor: text; }
 .n-title { font-size: 16px; line-height: 1.38; font-weight: 700; color: #f3d58d; min-height: 22px; letter-spacing: 0.01em; text-shadow: 0 0 18px rgba(243,213,141,0.2), 0 1px 3px rgba(0,0,0,0.55); border-bottom: 1.5px solid rgba(243,213,141,0.1); padding-bottom: 3px; margin-bottom: 4px; }
 .n-desc { font-size: 12px; color: rgba(175,188,205,0.68); line-height: 1.65; min-height: 16px; margin-top: 0; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
 .n-title::placeholder { color: rgba(243,213,141,0.28); }
@@ -794,9 +790,26 @@ let selectedConnId = null;
 let spaceDown = false;
 let pendingImageBoxId = null;
 let textEditorBoxId = null;
-let zTop = 10;
-let NOTE_Z_MAX = 500;
 let selectMode = false;
+let zTop = 0;
+const Z_LAYERS = {
+  note: 100,
+  noteActive: 600,
+  box: 1000,
+  boxActive: 1600
+};
+
+function nextZ(kind, active = false) {
+  const band = kind === 'box'
+    ? (active ? Z_LAYERS.boxActive : Z_LAYERS.box)
+    : (active ? Z_LAYERS.noteActive : Z_LAYERS.note);
+  zTop = (zTop + 1) % 480;
+  return band + zTop;
+}
+
+function bringToFront(el, kind, active = true) {
+  el.style.zIndex = nextZ(kind, active);
+}
 
 // Undo/Redo
 let history = [];
@@ -1226,7 +1239,7 @@ function autoSizeNote(note, el) {
   const titleW = measureTextWidth(ta.value || ta.placeholder, '700 16px -apple-system, sans-serif');
   const descW  = measureTextWidth(da.value || da.placeholder, '400 12px -apple-system, sans-serif');
   const widest = Math.max(titleW, descW);
-  const target = Math.max(160, widest + 28);   // no upper cap
+  const target = Math.min(340, Math.max(160, widest + 28));
   el.style.width = target + 'px';
 }
 
@@ -1322,21 +1335,22 @@ function addLongPress(el, getXY, cb) {
    NOTES
    ============================================================ */
 function newNote(atX, atY) {
-  const cx = atX ?? innerWidth / 2 + (Math.random() - 0.5) * 80;
-  const cy = atY ?? innerHeight / 2 + (Math.random() - 0.5) * 50;
+  const hasPoint = Number.isFinite(atX) && Number.isFinite(atY);
+  const cx = hasPoint ? atX : innerWidth / 2 + (Math.random() - 0.5) * 80;
+  const cy = hasPoint ? atY : innerHeight / 2 + (Math.random() - 0.5) * 50;
   const wp = toWorld(cx, cy);
   const data = { id: uid(), title: '', desc: '', x: wp.x - 120, y: wp.y - 20 };
   currentBoard().notes.push(data);
   const el = renderNote(data);
   world.appendChild(el);
-  updateEmpty(); checkpoint(); scheduleSave();
+  updateEmpty(); checkpoint(); scheduleSave(); scheduleMinimap();
   requestAnimationFrame(() => el.querySelector('.n-title').focus());
 }
 
 function renderNote(data) {
   const el = document.createElement('div');
   el.className = 'note'; el.dataset.id = data.id;
-  el.style.cssText = `left:${data.x}px;top:${data.y}px;z-index:${Math.min(++zTop, NOTE_Z_MAX)}`;
+  el.style.cssText = `left:${data.x}px;top:${data.y}px;z-index:${nextZ('note')}`;
 
   el.innerHTML = `<div class="note-accent"></div><span class="note-grip" aria-hidden="true">✦</span><textarea class="n-title" rows="1" placeholder="Write here…" spellcheck="true">${escHtml(data.title)}</textarea><textarea class="n-desc" rows="1" placeholder="Add a detail…" spellcheck="true">${escHtml(data.desc)}</textarea>`;
   const ta = el.querySelector('.n-title'), da = el.querySelector('.n-desc');
@@ -1345,6 +1359,7 @@ function renderNote(data) {
       if (t === ta) data.title = t.value; else data.desc = t.value;
       autoH(t); scheduleSave();
       autoSizeNote(data, el);
+      scheduleMinimap();
     });
     t.addEventListener('focus', () => pickEl(el, 'note', data));
     t.addEventListener('keydown', e => {
@@ -1370,7 +1385,7 @@ function renderNote(data) {
   el.addEventListener('mousedown', e => {
     if (e.target === ta || e.target === da) return;
     if (e.shiftKey || selectMode) { toggleMulti(data.id, el); e.stopPropagation(); return; }
-    pickEl(el, 'note', data); el.style.zIndex = Math.min(++zTop, NOTE_Z_MAX);
+    pickEl(el, 'note', data);
 
   });
 
@@ -1392,7 +1407,7 @@ function renderNote(data) {
     ]);
   });
 
-  requestAnimationFrame(() => { autoH(ta); autoH(da); autoSizeNote(data, el); });
+  requestAnimationFrame(() => { autoH(ta); autoH(da); autoSizeNote(data, el); drawMinimap(); });
   return el;
 }
 
@@ -1450,7 +1465,7 @@ function renderBox(box) {
   const el = document.createElement('div');
   el.className = 'box' + (box.collapsed ? ' collapsed' : '');
   el.dataset.id = box.id;
-  el.style.cssText = `left:${box.x}px;top:${box.y}px;width:${box.w}px;height:${box.h}px;z-index:${NOTE_Z_MAX + (++zTop)};--card-color:${box.color}`;
+  el.style.cssText = `left:${box.x}px;top:${box.y}px;width:${box.w}px;height:${box.h}px;z-index:${nextZ('box')};--card-color:${box.color}`;
 
   const imgs = (box.images || []).slice(0, 4).map(src => `<img class="box-img-thumb" src="${src}" alt="">`).join('');
   const childCount = box.board.boxes.length + box.board.notes.length;
@@ -1489,7 +1504,6 @@ function renderBox(box) {
     renderBreadcrumb(); scheduleSave();
   });
   headTitle.addEventListener('blur', () => checkpoint());
-  headTitle.addEventListener('mousedown', e => e.stopPropagation());
   headTitle.addEventListener('mousedown', e => e.stopPropagation());
   bodyTitle.addEventListener('input', () => {
     box.title = bodyTitle.innerText.replace(/\n$/, '');
@@ -1553,7 +1567,7 @@ function renderBox(box) {
   el.addEventListener('mousedown', e => {
     if (e.target.closest('input,[contenteditable],button,.port,.box-img-thumb')) return;
     if (e.shiftKey || selectMode) { toggleMulti(box.id, el); e.stopPropagation(); return; }
-    pickEl(el, 'box', box); el.style.zIndex = NOTE_Z_MAX + (++zTop);
+    pickEl(el, 'box', box);
   });
 
   // Right-click menu
@@ -1654,9 +1668,7 @@ function pickEl(el, kind, ref) {
   clearSel();
   el.classList.add('selected');
   selected = { kind, ref, el };
-  el.style.zIndex = kind === 'note'
-    ? Math.min(++zTop, NOTE_Z_MAX)
-    : NOTE_Z_MAX + (++zTop);
+  bringToFront(el, kind);
 }
 
 function toggleMulti(id, el) {
@@ -2263,7 +2275,7 @@ function makeDraggable(el, setPos, ...excl) {
     if (e.shiftKey) return;
     if (spaceDown) return;
     drag = true;
-    el.style.zIndex = ++zTop;
+    bringToFront(el, el.classList.contains('box') ? 'box' : 'note');
     const t = e.touches ? e.touches[0] : e;
     const wp = toWorld(t.clientX, t.clientY);
     ox = wp.x - parseFloat(el.style.left);
@@ -2384,7 +2396,7 @@ function deleteSelected() {
 /* ============================================================
    TOOLBAR BUTTONS
    ============================================================ */
-document.getElementById('btn-note').addEventListener('click', newNote);
+document.getElementById('btn-note').addEventListener('click', () => newNote());
 document.getElementById('btn-box').addEventListener('click', newBox);
 
 document.getElementById('btn-select-mode').addEventListener('click', () => {
