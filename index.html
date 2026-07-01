@@ -222,10 +222,11 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [contentedita
     inset 0 0 24px rgba(255,255,255,0.025);
   filter: saturate(2.2) brightness(1.2);
 }
-.box.selected { box-shadow: 0 0 0 2px var(--accent), 0 16px 40px rgba(0,0,0,0.7); transform: translateY(-2px); }
+.box.selected { box-shadow: 0 0 0 2px var(--accent), 0 16px 40px rgba(0, 0, 0, 0); transform: translateY(-2px); }
 .box.multi-selected { box-shadow: 0 0 0 2px rgba(124,215,196,0.7), 0 16px 40px rgba(0,0,0,0.7); }
 .box.dimmed { opacity: 0.1; pointer-events: none; }
-.box.match { box-shadow: 0 0 0 2px rgba(125,252,110,0.6); }
+.box.match { box-shadow: 0 0 0 2px rgba(124, 252, 110, 0); }
+.box.deep-match { box-shadow: 0 0 0 2px rgba(124, 252, 110, 0.45); opacity: 1; }
 .box.collapsed { height: 44px !important; min-height: 44px; resize: none; overflow: visible; border-radius: 10px; }
 .box.collapsed .box-body, .box.collapsed .box-foot { display: none; }
 
@@ -761,7 +762,6 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [contentedita
 
 <script>
 'use strict';
-
 /* ============================================================
    CONSTANTS
    ============================================================ */
@@ -1069,8 +1069,12 @@ function saveNow() {
   } catch(e) { console.warn('Save failed', e); }
 }
 
+function getNavPath() {
+  return navStack.slice(1).map(entry => entry.box.id);
+}
+
 function serialize() {
-  return { idCounter, root: serBoard(rootBoard) };
+  return { idCounter, navPath: getNavPath(), root: serBoard(rootBoard) };
 }
 function serBoard(b) {
   return {
@@ -1102,15 +1106,59 @@ function deserBoard(d) {
   return b;
 }
 
+// Walk a navPath (array of box ids) down from rootBoard, building a navStack.
+// Stops gracefully at the deepest still-valid box if a box in the path was
+// deleted (e.g. via undo/import) instead of just snapping back to root.
+function walkNavPath(path) {
+  const stack = [{ board: rootBoard, box: null }];
+  if (!Array.isArray(path)) return stack;
+  let board = rootBoard;
+  for (const id of path) {
+    const box = board.boxes.find(x => x.id === id);
+    if (!box) break;
+    stack.push({ board: box.board, box });
+    board = box.board;
+  }
+  return stack;
+}
+
 function cleanStr(v, limit = 20000) { return String(v ?? '').slice(0, limit); }
 function validColor(c) { return /^#[0-9a-f]{6}$/i.test(String(c || '')); }
 function clamp(n, lo, hi) { return Math.min(hi, Math.max(lo, n)); }
 function isSafeImg(src) { return /^data:image\/(png|jpe?g|gif|webp|bmp);base64,/i.test(String(src)); }
 function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// Resize/compress images before storing so localStorage and exported files
+// don't balloon with multi-megabyte base64 blobs from phone camera photos.
 function readImage(file, cb) {
   if (file.size > MAX_IMAGE_BYTES) { toast('Image must be under 4.5 MB'); return; }
   if (file.type === 'image/svg+xml') { toast('SVG not allowed for security'); return; }
-  const r = new FileReader(); r.onload = () => cb(r.result); r.readAsDataURL(file);
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const MAX_DIM = 1600;
+      let { width, height } = img;
+      const scaleFactor = Math.min(1, MAX_DIM / Math.max(width, height));
+      const cw = Math.max(1, Math.round(width * scaleFactor));
+      const ch = Math.max(1, Math.round(height * scaleFactor));
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = cw; canvas.height = ch;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, cw, ch);
+        const keepPng = file.type === 'image/png' && (file.size < 400_000);
+        const mime = keepPng ? 'image/png' : 'image/jpeg';
+        const dataUrl = canvas.toDataURL(mime, mime === 'image/jpeg' ? 0.82 : undefined);
+        cb(dataUrl);
+      } catch (e) {
+        cb(reader.result); // fallback to original if canvas fails
+      }
+    };
+    img.onerror = () => cb(reader.result);
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 function loadState() {
@@ -1121,6 +1169,9 @@ function loadState() {
     idCounter = s.idCounter || 1;
     const lb = deserBoard(s.root || makeBoard());
     rootBoard.notes = lb.notes; rootBoard.boxes = lb.boxes; rootBoard.connections = lb.connections;
+    // Restore the drilled-in workspace the user was in, instead of always
+    // dropping them back at the root board on refresh.
+    navStack = walkNavPath(s.navPath);
   } catch(e) { console.warn('Load failed', e); }
 }
 
@@ -1175,7 +1226,9 @@ function restoreSnap(snap) {
   idCounter = s.idCounter || 1;
   const lb = deserBoard(s.root || makeBoard());
   rootBoard.notes = lb.notes; rootBoard.boxes = lb.boxes; rootBoard.connections = lb.connections;
-  navStack = [{ board: rootBoard, box: null }];
+  // Try to stay in the same nested workspace the user was viewing rather
+  // than forcing them back to root on every undo/redo.
+  navStack = walkNavPath(s.navPath);
   selected = null; multiSelected = new Set(); selectedConnId = null;
   renderAll(); scheduleSave();
   restoring = false;
@@ -1215,7 +1268,7 @@ function renderBreadcrumb() {
     c.className = 'crumb' + (last ? ' cur' : '');
     // FIX: if this is the topmost entry but it's actually a box (standalone export), show its title
     c.textContent = (i === 0 && !entry.box) ? 'Root' : (entry.box?.title || 'Untitled');
-    if (!last) c.addEventListener('click', () => { navStack = navStack.slice(0, i + 1); selected = null; renderAll(); });
+    if (!last) c.addEventListener('click', () => { navStack = navStack.slice(0, i + 1); selected = null; renderAll(); scheduleSave(); });
     bc.appendChild(c);
   });
 }
@@ -1307,6 +1360,7 @@ document.getElementById('phClose').addEventListener('click', () => {
     navStack.pop();
     selected = null;
     renderAll();
+    scheduleSave();
   }
 });
 
@@ -1653,6 +1707,7 @@ function drillInto(box) {
   navStack.push({ board: box.board, box });
   selected = null; multiSelected = new Set(); selectedConnId = null;
   renderAll();
+  scheduleSave();
 }
 
 /* ============================================================
@@ -1951,23 +2006,51 @@ document.getElementById('minimap').addEventListener('click', e => {
 });
 
 /* ============================================================
-   SEARCH
+   SEARCH  (now recurses into nested boxes)
    ============================================================ */
+function itemTextMatches(item, q) {
+  return `${item.title || ''} ${item.desc || ''}`.toLowerCase().includes(q);
+}
+
+// Recursively scan a board: returns the set of note/box ids at THIS level
+// that either match directly, or contain a match somewhere inside a nested
+// box, plus a parallel set of ids that only match via a descendant (so the
+// UI can show "something inside matches" instead of just hiding the box).
+function deepSearch(board, q) {
+  const selfMatch = new Set();
+  const descendantMatch = new Set();
+  board.notes.forEach(n => { if (itemTextMatches(n, q)) selfMatch.add(n.id); });
+  board.boxes.forEach(box => {
+    const own = itemTextMatches(box, q);
+    const child = deepSearch(box.board, q);
+    const childHasAny = child.selfMatch.size > 0 || child.descendantMatch.size > 0;
+    if (own) selfMatch.add(box.id);
+    else if (childHasAny) descendantMatch.add(box.id);
+  });
+  return { selfMatch, descendantMatch };
+}
+
 function applySearch(q) {
   q = (q || '').trim().toLowerCase();
+  const b = currentBoard();
   if (!q) {
-    world.querySelectorAll('.box, .note').forEach(el => { el.classList.remove('dimmed', 'match'); });
+    world.querySelectorAll('.box, .note').forEach(el => { el.classList.remove('dimmed', 'match', 'deep-match'); });
     return;
   }
-  const b = currentBoard();
-  const checkItem = item => `${item.title || ''} ${item.desc || ''}`.toLowerCase().includes(q);
+  const { selfMatch, descendantMatch } = deepSearch(b, q);
   b.boxes.forEach(box => {
     const el = world.querySelector(`.box[data-id="${box.id}"]`); if (!el) return;
-    const m = checkItem(box); el.classList.toggle('dimmed', !m); el.classList.toggle('match', m);
+    const m = selfMatch.has(box.id);
+    const d = descendantMatch.has(box.id);
+    el.classList.toggle('dimmed', !m && !d);
+    el.classList.toggle('match', m);
+    el.classList.toggle('deep-match', !m && d);
+    el.title = d && !m ? 'Contains a match inside — open to view' : '';
   });
   b.notes.forEach(note => {
     const el = world.querySelector(`.note[data-id="${note.id}"]`); if (!el) return;
-    const m = checkItem(note); el.classList.toggle('dimmed', !m); el.classList.toggle('match', m);
+    const m = selfMatch.has(note.id);
+    el.classList.toggle('dimmed', !m); el.classList.toggle('match', m);
   });
 }
 
@@ -2375,7 +2458,7 @@ document.addEventListener('keydown', e => {
   if (e.key === '=' || e.key === '+') { setZoom(scale * 1.12); e.preventDefault(); }
   if (e.key === '-') { setZoom(scale * 0.89); e.preventDefault(); }
   if (navStack.length > 1 && e.key === 'Backspace') {
-    navStack.pop(); selected = null; renderAll();
+    navStack.pop(); selected = null; renderAll(); scheduleSave();
   }
 });
 
@@ -2544,6 +2627,7 @@ panY = viewport.clientHeight / 2 - 150;
 renderAll();
 checkpoint();
 updateUndoBtns();
+
 </script>
 </body>
 </html>
