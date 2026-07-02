@@ -27,6 +27,95 @@
   --radius: 8px;
   --shadow-lg: 0 24px 80px rgba(0,0,0,0.55);
 }
+/* ── Themes ── */
+html[data-theme="light"] {
+  --bg: #f3f5f8; --surface: #ffffff; --surface-2: #eef1f5; --surface-3: #e3e8ee;
+  --line: rgba(20,25,35,0.10); --line-strong: rgba(20,25,35,0.18);
+  --text: #171b21; --muted: #4f5a68; --faint: #8791a0;
+  --accent: #1fa870; --accent-dim: rgba(31,168,112,0.12); --accent-ink: #ffffff;
+  --danger: #d24b4b; --gold: #b3821f;
+}
+html[data-theme="pastel"] {
+  --bg: #fbf3f8; --surface: #fffaf9; --surface-2: #fdeef4; --surface-3: #f8e2ec;
+  --line: rgba(90,50,80,0.10); --line-strong: rgba(90,50,80,0.18);
+  --text: #3a2438; --muted: #7a5a72; --faint: #a688a0;
+  --accent: #d97fb0; --accent-dim: rgba(217,127,176,0.16); --accent-ink: #2c1428;
+  --danger: #e0687e; --gold: #d6a84e;
+}
+/* ── Theme popup ── */
+.theme-pop {
+  position: fixed; z-index: 10002; display: none;
+  background: #101722; border: 1px solid var(--line-strong); border-radius: 8px;
+  padding: 8px; min-width: 140px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.8);
+}
+html[data-theme="light"] .theme-pop, html[data-theme="pastel"] .theme-pop { background: var(--surface); }
+.theme-pop.show { display: block; }
+.theme-opt { display: flex; align-items: center; gap: 8px; padding: 7px 9px; border-radius: 7px; font-size: 12px; color: var(--muted); cursor: pointer; border: none; background: none; width: 100%; text-align: left; }
+.theme-opt:hover { background: var(--surface-2); color: var(--text); }
+.theme-opt.active { color: var(--accent); font-weight: 700; }
+.theme-swatch { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; border: 1px solid var(--line-strong); }
+/* ── Lock screen ── */
+#lock-screen {
+  position: fixed; inset: 0; z-index: 20000; display: none;
+  place-items: center; background: var(--bg);
+}
+#lock-screen.open { display: grid; }
+.lock-box { width: min(320px, 90vw); text-align: center; }
+.lock-mark { width: 56px; height: 56px; margin: 0 auto 18px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: var(--accent-dim); color: var(--accent); font-size: 24px; }
+.lock-box h2 { font-size: 16px; color: var(--text); margin-bottom: 6px; }
+.lock-box p { font-size: 11.5px; color: var(--faint); margin-bottom: 16px; }
+#lock-pass { width: 100%; height: 40px; border-radius: 9px; border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--text); text-align: center; font-size: 14px; letter-spacing: 2px; margin-bottom: 10px; }
+#lock-submit { width: 100%; height: 38px; border: none; border-radius: 9px; background: var(--accent); color: var(--accent-ink); font-weight: 800; font-size: 12.5px; cursor: pointer; }
+#lock-error { color: var(--danger); font-size: 11px; margin-top: 8px; min-height: 14px; }
+#lock-forgot { margin-top: 14px; font-size: 10.5px; color: var(--faint); background: none; border: none; cursor: pointer; text-decoration: underline; }
+/* ── Emoji picker ── */
+.emoji-pop {
+  position: fixed; z-index: 10002; display: none;
+  background: #101722; border: 1px solid var(--line-strong); border-radius: 8px;
+  padding: 8px; width: 220px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.8);
+}
+html[data-theme="light"] .emoji-pop, html[data-theme="pastel"] .emoji-pop { background: var(--surface); }
+.emoji-pop.show { display: block; }
+.emoji-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.emoji-opt { width: 26px; height: 26px; border: none; background: none; border-radius: 6px; cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; }
+.emoji-opt:hover { background: var(--surface-2); }
+.box-icon { font-size: 13px; margin-right: 3px; }
+
+/* ── THEMES ── (light + pastel override the dark defaults above) */
+body[data-theme="light"] {
+  --bg: #f4f6f9;
+  --surface: #ffffff;
+  --surface-2: #eef1f5;
+  --surface-3: #e3e8ee;
+  --line: rgba(20,25,35,0.09);
+  --line-strong: rgba(20,25,35,0.16);
+  --text: #1a2029;
+  --muted: #5b6470;
+  --faint: #8b93a0;
+  --accent: #1f9d64;
+  --accent-dim: rgba(31,157,100,0.12);
+  --accent-ink: #ffffff;
+  --danger: #d1454a;
+  --gold: #b9860f;
+}
+body[data-theme="pastel"] {
+  --bg: #fdf6f0;
+  --surface: #fffaf5;
+  --surface-2: #fbeee3;
+  --surface-3: #f6e2d3;
+  --line: rgba(90,60,50,0.10);
+  --line-strong: rgba(90,60,50,0.18);
+  --text: #4a3b34;
+  --muted: #8a7468;
+  --faint: #b3a094;
+  --accent: #ef9b8f;
+  --accent-dim: rgba(239,155,143,0.16);
+  --accent-ink: #3a1f1a;
+  --danger: #d4666a;
+  --gold: #e0aa4e;
+}
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 100%; height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
 button, input, textarea { font: inherit; color: inherit; }
@@ -600,10 +689,23 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [contentedita
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
       <span>Import</span>
     </button>
+    <button class="h-btn" id="btn-share-link" title="Copy a shareable link to this board" aria-label="Copy shareable link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>
+      <span>Share</span>
+    </button>
     <div class="h-sep"></div>
     <button class="h-btn star" id="btn-star" title="Like locally and open GitHub to star" aria-label="Like this app and open GitHub repository">
       <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round"><path d="M12 2.8l2.8 5.7 6.3.9-4.6 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2-4.6-4.4 6.3-.9L12 2.8z"/></svg>
       <span id="star-label">Star</span>
+    </button>
+    <div class="h-sep"></div>
+    <button class="h-btn" id="btn-theme" title="Change theme" aria-label="Change theme">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18 4.5 4.5 0 0 0 0-9 3 3 0 0 1 0-6z" fill="currentColor" stroke="none"/></svg>
+      <span>Theme</span>
+    </button>
+    <button class="h-btn" id="btn-lock" title="Lock board with a password" aria-label="Lock board">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      <span id="lock-label">Lock</span>
     </button>
     <div class="h-sep"></div>
     <button class="h-btn" id="btn-shortcuts" title="Keyboard shortcuts (?)" aria-label="Show keyboard shortcuts">
@@ -753,6 +855,28 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, [contentedita
       <button class="tp-btn" data-tpl="kanban"><span class="tp-icon">📋</span><span class="tp-name">Kanban</span>To Do · In Progress · Done</button>
       <button class="tp-btn" data-tpl="journey"><span class="tp-icon">🗺</span><span class="tp-name">User Journey</span>Stages, feelings, touchpoints</button>
     </div>
+  </div>
+</div>
+
+<div class="theme-pop" id="theme-pop">
+  <button class="theme-opt" data-theme="dark"><span class="theme-swatch" style="background:#0a0d12"></span>Dark</button>
+  <button class="theme-opt" data-theme="light"><span class="theme-swatch" style="background:#f3f5f8"></span>Light</button>
+  <button class="theme-opt" data-theme="pastel"><span class="theme-swatch" style="background:#fbf3f8"></span>Pastel</button>
+</div>
+
+<div class="emoji-pop" id="emoji-pop">
+  <div class="emoji-grid" id="emoji-grid"></div>
+</div>
+
+<div id="lock-screen">
+  <div class="lock-box">
+    <div class="lock-mark">🔒</div>
+    <h2 id="lock-title">Board locked</h2>
+    <p id="lock-sub">Enter your password to unlock this board.</p>
+    <input id="lock-pass" type="password" placeholder="Password" autocomplete="off">
+    <button id="lock-submit">Unlock</button>
+    <div id="lock-error"></div>
+    <button id="lock-forgot">Forgot password? Reset (erases board)</button>
   </div>
 </div>
 
@@ -1063,7 +1187,12 @@ function scheduleSave() {
 }
 function saveNow() {
   try {
-    localStorage.setItem(LS_KEY, JSON.stringify(serialize()));
+    const plain = JSON.stringify(serialize());
+    if (sessionKey) {
+      encryptForStorage(plain).then(out => localStorage.setItem(LS_KEY, out));
+    } else {
+      localStorage.setItem(LS_KEY, plain);
+    }
     saveInd.textContent = 'Saved ✓'; saveInd.classList.add('ok');
     setTimeout(() => { saveInd.classList.remove('ok'); saveInd.textContent = 'Auto-saved'; }, 1800);
   } catch(e) { console.warn('Save failed', e); }
@@ -1080,7 +1209,7 @@ function serBoard(b) {
   return {
     notes: b.notes.map(n => ({ ...n })),
     boxes: b.boxes.map(box => ({
-      id: box.id, title: box.title, desc: box.desc, color: box.color,
+      id: box.id, title: box.title, desc: box.desc, color: box.color, icon: box.icon || '',
       x: box.x, y: box.y, w: box.w, h: box.h, collapsed: box.collapsed,
       images: box.images || [], board: serBoard(box.board)
     })),
@@ -1093,6 +1222,7 @@ function deserBoard(d) {
   b.boxes = (d.boxes || []).map(bd => ({
     id: bd.id, title: cleanStr(bd.title, 500), desc: cleanStr(bd.desc),
     color: validColor(bd.color) ? bd.color : CARD_COLORS[0],
+    icon: cleanStr(bd.icon, 8),
     x: +bd.x || 0, y: +bd.y || 0,
     w: clamp(+bd.w || 270, 160, 900), h: clamp(+bd.h || 200, 80, 900),
     collapsed: !!bd.collapsed, images: (bd.images || []).filter(isSafeImg).slice(0, 12),
@@ -1163,8 +1293,14 @@ function readImage(file, cb) {
 
 function loadState() {
   try {
-    const raw = localStorage.getItem(LS_KEY);
+    let raw = localStorage.getItem(LS_KEY);
     if (!raw) return;
+    if (sessionKey) {
+      // decryptFromStorage is async but we only ever call loadState() with
+      // sessionKey set right after tryUnlock() has already decrypted+verified
+      // successfully, so this parse is safe to do synchronously via cache.
+      raw = pendingDecryptedPlain || raw;
+    }
     const s = JSON.parse(raw);
     idCounter = s.idCounter || 1;
     const lb = deserBoard(s.root || makeBoard());
@@ -1174,6 +1310,7 @@ function loadState() {
     navStack = walkNavPath(s.navPath);
   } catch(e) { console.warn('Load failed', e); }
 }
+let pendingDecryptedPlain = null;
 
 function updateStarLabel() {
   const count = Number(localStorage.getItem(LIKE_KEY) || 0);
@@ -1202,7 +1339,7 @@ function likeAndOpenRepo() {
 function checkpoint() {
   if (restoring) return;
   const snap = JSON.stringify(serialize());
-  if (history[history.length - 1] !== snap) history.push(snap);
+  if (history[history.length - 1] !== snap) { history.push(snap); bumpBackupCounter(); }
   if (history.length > 60) history.shift();
   future = [];
   updateUndoBtns();
@@ -1491,7 +1628,7 @@ function newBox() {
   const wy = center.y + slot[1] + ring * 40 - 100;
 
   const data = {
-    id: uid(), title: '', desc: '', color,
+    id: uid(), title: '', desc: '', color, icon: '',
     x: wx, y: wy,
     w: 270, h: 150,
     collapsed: false, images: [],
@@ -1529,11 +1666,12 @@ function renderBox(box) {
     <div class="port left" data-side="left"></div>
     <div class="port right" data-side="right"></div>
     <div class="box-head">
-      <span class="box-tag">Thought</span>
+      <span class="box-tag">${box.icon ? `<span class="box-icon">${box.icon}</span>` : ''}Thought</span>
       <input class="box-head-title" placeholder="Untitled…" value="${escHtml(box.title)}">
       <div class="box-tools">
         <button class="box-tool" data-action="text" title="Edit text (E)">T</button>
         <button class="box-tool" data-action="image" title="Attach image">⊞</button>
+        <button class="box-tool" data-action="icon" title="Set icon/emoji">🙂</button>
         <button class="box-tool" data-action="color" title="Change color">●</button>
         <button class="box-tool" data-action="collapse" title="Collapse/expand">${box.collapsed ? '▼' : '▲'}</button>
         <button class="box-tool danger" data-action="delete" title="Delete">✕</button>
@@ -1541,7 +1679,10 @@ function renderBox(box) {
     </div>
     <div class="box-divider"></div>
     <div class="box-body">
-      <div class="box-title-full" contenteditable="true" spellcheck="true">${escHtml(box.title)}</div>
+      <div style="display:flex;align-items:flex-start;gap:5px;">
+        ${box.icon ? `<span class="box-icon" style="font-size:16px;line-height:1.45;margin-top:1px;">${box.icon}</span>` : ''}
+        <div class="box-title-full" contenteditable="true" spellcheck="true" style="flex:1;min-width:0;">${escHtml(box.title)}</div>
+      </div>
       <div class="box-desc-area" contenteditable="true" data-ph="Add context…">${escHtml(box.desc)}</div>
       ${imgs ? `<div class="box-images">${imgs}</div>` : ''}
     </div>
@@ -1575,6 +1716,7 @@ function renderBox(box) {
   // Tools
   el.querySelector('[data-action="text"]').addEventListener('click', e => { e.stopPropagation(); openTextEditor(box); });
   el.querySelector('[data-action="image"]').addEventListener('click', e => { e.stopPropagation(); pendingImageBoxId = box.id; document.getElementById('file-image').click(); });
+  el.querySelector('[data-action="icon"]').addEventListener('click', e => { e.stopPropagation(); openEmojiPop(e.currentTarget, box, el); });
   el.querySelector('[data-action="color"]').addEventListener('click', e => { e.stopPropagation(); openColorPop(e.currentTarget, box, el); });
   el.querySelector('[data-action="collapse"]').addEventListener('click', e => {
     e.stopPropagation(); box.collapsed = !box.collapsed;
@@ -1906,6 +2048,45 @@ function closeColorPop() {
 }
 
 /* ============================================================
+   EMOJI / ICON PICKER
+   ============================================================ */
+const EMOJI_SET = ['💡','✅','⚠️','🔥','⭐','❓','📌','🚀','📝','🎯','🕒','🔗','📎','🐞','💰','📊','🎨','🧩','📅','🔔','❤️','👍','🚩','📦'];
+
+function openEmojiPop(anchor, box, boxEl) {
+  closeEmojiPop();
+  const pop = document.getElementById('emoji-pop');
+  const grid = document.getElementById('emoji-grid');
+  grid.innerHTML = '';
+  const noneBtn = document.createElement('button');
+  noneBtn.className = 'emoji-opt'; noneBtn.textContent = '🚫'; noneBtn.title = 'No icon';
+  noneBtn.addEventListener('mousedown', e => e.stopPropagation());
+  noneBtn.addEventListener('click', () => { box.icon = ''; world.appendChild(renderBox(box)); drawConnections(); closeEmojiPop(); checkpoint(); scheduleSave(); });
+  grid.appendChild(noneBtn);
+  EMOJI_SET.forEach(em => {
+    const b = document.createElement('button');
+    b.className = 'emoji-opt'; b.textContent = em;
+    b.addEventListener('mousedown', e => e.stopPropagation());
+    b.addEventListener('click', () => { box.icon = em; world.appendChild(renderBox(box)); drawConnections(); closeEmojiPop(); checkpoint(); scheduleSave(); });
+    grid.appendChild(b);
+  });
+  pop.classList.add('show');
+  const r = anchor.getBoundingClientRect();
+  const pw = 220;
+  pop.style.left = Math.min(r.left, innerWidth - pw - 10) + 'px';
+  pop.style.top = (r.bottom + 8) + 'px';
+  setTimeout(() => {
+    document.addEventListener('mousedown', closeEPOnOut);
+    document.addEventListener('touchstart', closeEPOnOut, { passive: true });
+  }, 0);
+}
+function closeEPOnOut(e) { if (!document.getElementById('emoji-pop').contains(e.target)) closeEmojiPop(); }
+function closeEmojiPop() {
+  document.getElementById('emoji-pop').classList.remove('show');
+  document.removeEventListener('mousedown', closeEPOnOut);
+  document.removeEventListener('touchstart', closeEPOnOut);
+}
+
+/* ============================================================
    CONTEXT MENU
    ============================================================ */
 const ctxMenu = document.getElementById('ctx-menu');
@@ -2142,7 +2323,7 @@ function mkBox(title, desc, color, x, y) {
   const c = CARD_COLORS[colorCount % CARD_COLORS.length]; colorCount++;
   const box = {
     id: uid(), title, desc, color: color || c,
-    x, y, w: 260, h: 160, collapsed: false, images: [], board: makeBoard()
+    x, y, w: 260, h: 160, collapsed: false, images: [], icon: '', board: makeBoard()
   };
   currentBoard().boxes.push(box);
   return box;
@@ -2249,6 +2430,7 @@ function exportBoard() {
   a.click();
   setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 1000);
   toast('Full board exported as HTML');
+  maybeShowCloudTip();
 }
 
 function exportJson() {
@@ -2268,6 +2450,7 @@ function exportJson() {
   a.click();
   setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 1000);
   toast('Board exported as JSON');
+  maybeShowCloudTip();
 }
 
 function exportBox(box) {
@@ -2519,6 +2702,281 @@ document.getElementById('btn-template').addEventListener('click', () => document
 document.getElementById('btn-export').addEventListener('click', exportJson);
 document.getElementById('btn-import').addEventListener('click', () => document.getElementById('file-import').click());
 document.getElementById('btn-star').addEventListener('click', likeAndOpenRepo);
+
+/* ============================================================
+   THEMES
+   ============================================================ */
+const THEME_KEY = 'mindboard_theme';
+function applyTheme(name) {
+  document.documentElement.setAttribute('data-theme', name);
+  localStorage.setItem(THEME_KEY, name);
+  document.querySelectorAll('.theme-opt').forEach(el => el.classList.toggle('active', el.dataset.theme === name));
+}
+function loadTheme() {
+  const saved = localStorage.getItem(THEME_KEY) || 'dark';
+  applyTheme(saved);
+}
+document.getElementById('btn-theme').addEventListener('click', e => {
+  e.stopPropagation();
+  const pop = document.getElementById('theme-pop');
+  const showing = pop.classList.contains('show');
+  closeAllPopups(); closeThemePop();
+  if (showing) return;
+  pop.classList.add('show');
+  const r = e.currentTarget.getBoundingClientRect();
+  pop.style.left = Math.min(r.left, innerWidth - 156) + 'px';
+  pop.style.top = (r.bottom + 8) + 'px';
+  setTimeout(() => {
+    document.addEventListener('mousedown', closeTPOnOut);
+    document.addEventListener('touchstart', closeTPOnOut, { passive: true });
+  }, 0);
+});
+document.querySelectorAll('.theme-opt').forEach(btn => {
+  btn.addEventListener('click', () => { applyTheme(btn.dataset.theme); closeThemePop(); toast(`Theme set to ${btn.dataset.theme}`); });
+});
+function closeTPOnOut(e) { if (!document.getElementById('theme-pop').contains(e.target) && e.target.id !== 'btn-theme') closeThemePop(); }
+function closeThemePop() {
+  document.getElementById('theme-pop').classList.remove('show');
+  document.removeEventListener('mousedown', closeTPOnOut);
+  document.removeEventListener('touchstart', closeTPOnOut);
+}
+loadTheme();
+
+/* ============================================================
+   PASSWORD LOCK (real encryption via Web Crypto)
+   Data is encrypted with AES-GCM using a key derived from your
+   password (PBKDF2). Without the password, the saved board data
+   in localStorage is unreadable gibberish.
+   ============================================================ */
+const LOCK_META_KEY = 'mindboard_lock_meta'; // { salt, iv } base64, presence = locked
+let sessionKey = null; // CryptoKey, held only in memory while unlocked
+
+function b64(buf) { return btoa(String.fromCharCode(...new Uint8Array(buf))); }
+function unb64(str) { return Uint8Array.from(atob(str), c => c.charCodeAt(0)).buffer; }
+
+async function deriveKey(password, saltB64) {
+  const salt = saltB64 ? unb64(saltB64) : crypto.getRandomValues(new Uint8Array(16)).buffer;
+  const baseKey = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations: 150000, hash: 'SHA-256' },
+    baseKey, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
+  );
+  return { key, saltB64: b64(salt) };
+}
+
+function isLocked() { return !!localStorage.getItem(LOCK_META_KEY); }
+
+async function setLockPassword(password) {
+  const { key, saltB64 } = await deriveKey(password, null);
+  sessionKey = key;
+  localStorage.setItem(LOCK_META_KEY, JSON.stringify({ salt: saltB64 }));
+  document.getElementById('lock-label').textContent = 'Unlock';
+  saveNow();
+}
+
+async function removeLock() {
+  sessionKey = null;
+  localStorage.removeItem(LOCK_META_KEY);
+  document.getElementById('lock-label').textContent = 'Lock';
+  saveNow();
+}
+
+async function encryptForStorage(plainText) {
+  if (!sessionKey) return plainText;
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, sessionKey, new TextEncoder().encode(plainText));
+  return JSON.stringify({ __enc: true, iv: b64(iv), data: b64(cipher) });
+}
+
+async function decryptFromStorage(raw, key) {
+  const parsed = JSON.parse(raw);
+  if (!parsed.__enc) return raw; // not encrypted (legacy/unlocked)
+  const plainBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(parsed.iv) }, key, unb64(parsed.data));
+  return new TextDecoder().decode(plainBuf);
+}
+
+document.getElementById('btn-lock').addEventListener('click', () => {
+  if (isLocked()) {
+    // Already locked+unlocked this session -> offer to remove lock
+    showCtxMenu(event.clientX, event.clientY, [
+      { label: '🔓 Remove password lock', action: async () => { await removeLock(); toast('Lock removed — board is no longer encrypted'); } },
+      { label: '🔑 Change password', action: () => promptSetPassword(true) }
+    ]);
+  } else {
+    promptSetPassword(false);
+  }
+});
+
+function promptSetPassword(isChange) {
+  const pw = window.prompt(isChange ? 'Enter a new password for this board:' : 'Set a password to lock this board.\nAnyone without it cannot read your saved data.');
+  if (!pw) return;
+  const pw2 = window.prompt('Confirm password:');
+  if (pw !== pw2) { toast('Passwords did not match'); return; }
+  setLockPassword(pw).then(() => toast('Board locked — data is now encrypted 🔒'));
+}
+
+document.getElementById('lock-submit').addEventListener('click', tryUnlock);
+document.getElementById('lock-pass').addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
+document.getElementById('lock-forgot').addEventListener('click', () => {
+  if (!confirm('This will permanently erase your locked board data (it cannot be decrypted without the password). Continue?')) return;
+  localStorage.removeItem(LS_KEY);
+  localStorage.removeItem(LOCK_META_KEY);
+  location.reload();
+});
+
+async function tryUnlock() {
+  const pw = document.getElementById('lock-pass').value;
+  const errEl = document.getElementById('lock-error');
+  errEl.textContent = '';
+  try {
+    const meta = JSON.parse(localStorage.getItem(LOCK_META_KEY));
+    const { key } = await deriveKey(pw, meta.salt);
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) {
+      const plain = await decryptFromStorage(raw, key); // throws if wrong password
+      JSON.parse(plain); // sanity check
+      pendingDecryptedPlain = plain;
+    }
+    sessionKey = key;
+    document.getElementById('lock-screen').classList.remove('open');
+    document.getElementById('lock-label').textContent = 'Unlock';
+    loadState();
+    pendingDecryptedPlain = null;
+    renderAll(); checkpoint(); updateUndoBtns();
+    toast('Board unlocked');
+  } catch (e) {
+    errEl.textContent = 'Incorrect password. Try again.';
+  }
+}
+
+function showLockScreenIfNeeded() {
+  if (isLocked() && !sessionKey) {
+    document.getElementById('lock-screen').classList.add('open');
+    setTimeout(() => document.getElementById('lock-pass').focus(), 50);
+    return true;
+  }
+  if (isLocked()) document.getElementById('lock-label').textContent = 'Unlock';
+  return false;
+}
+
+/* ============================================================
+   BACKUP REMINDER
+   ============================================================ */
+const BACKUP_EDIT_KEY = 'mindboard_edits_since_export';
+
+/* ============================================================
+   SHARE AS A LINK
+   Packs the current board into the page's own URL (after the #),
+   compressed with gzip. Anyone who opens that link — IF this file
+   is hosted somewhere online (e.g. GitHub Pages), not just sitting
+   on your own computer — will see the board load automatically.
+   Nothing is uploaded to any server; the data travels *inside* the
+   link itself, so very large boards (lots of images) won't fit.
+   ============================================================ */
+const SHARE_LIMIT = 60000; // safe URL length budget for the encoded data
+
+function toUrlSafeB64(buf) {
+  return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function fromUrlSafeB64(str) {
+  str = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (str.length % 4) str += '=';
+  return Uint8Array.from(atob(str), c => c.charCodeAt(0)).buffer;
+}
+
+async function gzipCompress(text) {
+  const stream = new Blob([text]).stream().pipeThrough(new CompressionStream('gzip'));
+  const buf = await new Response(stream).arrayBuffer();
+  return toUrlSafeB64(buf);
+}
+async function gzipDecompress(b64) {
+  const stream = new Blob([fromUrlSafeB64(b64)]).stream().pipeThrough(new DecompressionStream('gzip'));
+  return new Response(stream).text();
+}
+
+async function buildShareLink() {
+  // Share the board the user is currently looking at (works for a
+  // sub-board too), same shape as a single-box export.
+  const entry = currentEntry();
+  const payload = {
+    exportType: entry.box ? 'box' : 'full',
+    idCounter,
+    root: entry.box
+      ? { notes: entry.box.board.notes.map(n => ({ ...n })), boxes: serBoard(entry.board).boxes, connections: entry.board.connections.map(c => ({ ...c })) }
+      : serBoard(rootBoard),
+    meta: entry.box ? { title: entry.box.title, desc: entry.box.desc, color: entry.box.color } : undefined
+  };
+  if (!('CompressionStream' in window)) { toast('Your browser doesn\'t support link sharing — try a recent Chrome, Edge, or Firefox'); return null; }
+  const encoded = await gzipCompress(JSON.stringify(payload));
+  if (encoded.length > SHARE_LIMIT) {
+    toast('Board is too large for a link (try fewer images) — use Export instead');
+    return null;
+  }
+  const url = location.origin + location.pathname + '#share=' + encoded;
+  return url;
+}
+
+document.getElementById('btn-share-link').addEventListener('click', async () => {
+  toast('Preparing link…');
+  const url = await buildShareLink();
+  if (!url) return;
+  try {
+    await navigator.clipboard.writeText(url);
+    toast('🔗 Link copied! Anyone with this link (and this page hosted online) can open your board');
+  } catch {
+    window.prompt('Copy this link to share your board:', url);
+  }
+  if (!/^https?:\/\/(?!localhost)/i.test(location.origin) || location.protocol === 'file:') {
+    toast('Note: this only works once this file is hosted online (e.g. GitHub Pages) — right now it only opens on this computer');
+  }
+});
+
+async function loadFromShareLinkIfPresent() {
+  const hash = location.hash;
+  if (!hash.startsWith('#share=')) return false;
+  try {
+    const plain = await gzipDecompress(hash.slice(7));
+    const raw = JSON.parse(plain);
+    if (!confirm('Open the board from this shared link? This will replace what you\'re currently viewing here (your existing data stays saved separately).')) {
+      history.replaceState(null, '', location.pathname);
+      return false;
+    }
+    if (raw.exportType === 'box') {
+      const lb = deserBoard(raw.root);
+      rootBoard.notes = lb.notes; rootBoard.boxes = lb.boxes; rootBoard.connections = lb.connections;
+      navStack = [{ board: rootBoard, box: { title: raw.meta?.title || 'Shared board', desc: raw.meta?.desc || '', color: raw.meta?.color || CARD_COLORS[0], id: uid() } }];
+    } else {
+      const lb = deserBoard(raw.root || raw);
+      rootBoard.notes = lb.notes; rootBoard.boxes = lb.boxes; rootBoard.connections = lb.connections;
+      navStack = [{ board: rootBoard, box: null }];
+    }
+    idCounter = Math.max(idCounter, raw.idCounter || 1);
+    history.replaceState(null, '', location.pathname);
+    toast('Shared board loaded');
+    return true;
+  } catch (e) {
+    console.warn('Share link load failed', e);
+    toast('That share link looks invalid or corrupted');
+    history.replaceState(null, '', location.pathname);
+    return false;
+  }
+}
+function bumpBackupCounter() {
+  const n = (Number(localStorage.getItem(BACKUP_EDIT_KEY)) || 0) + 1;
+  localStorage.setItem(BACKUP_EDIT_KEY, String(n));
+  if (n === 40) {
+    toast('💾 Tip: Export your board (top right) to keep a safe backup');
+  }
+}
+function resetBackupCounter() { localStorage.setItem(BACKUP_EDIT_KEY, '0'); }
+function maybeShowCloudTip() {
+  if (localStorage.getItem('mindboard_seen_cloud_tip')) return;
+  localStorage.setItem('mindboard_seen_cloud_tip', '1');
+  setTimeout(() => toast('☁️ Tip: point your downloads to a Google Drive/Dropbox folder and this becomes an automatic cloud backup'), 2600);
+}
+['btn-export', 'btn-download-board'].forEach(id => {
+  document.getElementById(id).addEventListener('click', resetBackupCounter);
+});
 document.getElementById('btn-download-board').addEventListener('click', () => {
   if (selected?.kind === 'box') {
     // Download just the selected box
@@ -2574,7 +3032,7 @@ document.getElementById('lightbox').addEventListener('click', () => { document.g
 
 /* ── Close all popups ── */
 function closeAllPopups() {
-  closeCtxMenu(); closeColorPop(); closeConnPopup();
+  closeCtxMenu(); closeColorPop(); closeConnPopup(); closeThemePop(); closeEmojiPop();
   document.getElementById('conn-popup').classList.remove('show');
 }
 
@@ -2620,13 +3078,29 @@ window.addEventListener('resize', () => { applyTransform(); drawMinimap(); });
 /* ============================================================
    INIT
    ============================================================ */
-loadState();
-updateStarLabel();
 panX = viewport.clientWidth  / 2 - 200;
 panY = viewport.clientHeight / 2 - 150;
-renderAll();
-checkpoint();
-updateUndoBtns();
+(async () => {
+  const loadedFromShare = await loadFromShareLinkIfPresent();
+  if (loadedFromShare) {
+    updateStarLabel();
+    renderAll();
+    checkpoint();
+    updateUndoBtns();
+    return;
+  }
+  if (!showLockScreenIfNeeded()) {
+    loadState();
+    updateStarLabel();
+    renderAll();
+    checkpoint();
+    updateUndoBtns();
+  } else {
+    updateStarLabel();
+    checkpoint();
+    updateUndoBtns();
+  }
+})();
 
 </script>
 </body>
